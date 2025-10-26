@@ -762,12 +762,9 @@ int main(int argc, char** argv)
               decode_pdsch = false;
             }
           } else {
-            /* We are looking for SIB1 Blocks, search only in appropiate places */
-            if ((sf_idx == 5 && (sfn % 2) == 0) || mch_table[sf_idx] == 1) {
+              // set decode pdsch all time to feed sib through udp socket for asn1 decoding in python
               decode_pdsch = true;
-            } else {
-              decode_pdsch = false;
-            }
+            
           }
 
           uint32_t tti = sfn * 10 + sf_idx;
@@ -830,17 +827,18 @@ int main(int argc, char** argv)
             if (n > 0) {
               /* Send data if socket active */
               if (prog_args.net_port > 0) {
-                if (sf_idx == 1) {
-                  srsran_netsink_write(&net_sink, data[0], 1 + (n - 1) / 8);
-                } else {
+                
                   // TODO: UDP Data transmission does not work
                   for (uint32_t tb = 0; tb < SRSRAN_MAX_CODEWORDS; tb++) {
                     if (pdsch_cfg.grant.tb[tb].enabled) {
-                      srsran_netsink_write(&net_sink, data[tb], 1 + (pdsch_cfg.grant.tb[tb].tbs - 1) / 8);
+                      size_t len = (pdsch_cfg.grant.tb[tb].tbs + 7) / 8;
+                      srsran_netsink_write(&net_sink, data[tb], len);
+                      //srsran_netsink_write(&net_sink, data[tb], 1 + (pdsch_cfg.grant.tb[tb].tbs - 1) / 8);
+                            
                     }
-                  }
-                }
-              }
+                  
+                } // end of for
+              }// end of if  prog
 #ifdef PRINT_CHANGE_SCHEDULING
               if (pdsch_cfg.dci.cw[0].mcs_idx != old_dl_dci.cw[0].mcs_idx ||
                   memcmp(&pdsch_cfg.dci.type0_alloc, &old_dl_dci.type0_alloc, sizeof(srsran_ra_type0_t)) ||
