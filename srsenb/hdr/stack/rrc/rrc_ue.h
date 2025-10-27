@@ -172,8 +172,9 @@ public:
   bool                          connect_notified = false;
   unique_rnti_ptr<rrc_mobility> mobility_handler;
   unique_rnti_ptr<rrc_endc>     endc_handler;
-
-  bool is_csfb = false;
+  // vde mod to enable fallback
+  bool is_csfb = true;
+  //bool is_csfb = false;
 
 private:
   srsran::unique_timer activity_timer; // for basic DL/UL activity timeout

@@ -1171,6 +1171,13 @@ void rrc::ue::send_connection_release()
     } else {
       rel_ies.redirected_carrier_info_present = false;
     }
+  } else {
+    // vde added for redirection whatever is_csfb is ( )
+    if (parent->sib7.carrier_freqs_info_list.size() > 0) {
+      rel_ies.redirected_carrier_info_present = true;
+      rel_ies.redirected_carrier_info.set_geran();
+      rel_ies.redirected_carrier_info.geran() = parent->sib7.carrier_freqs_info_list[0].carrier_freqs;
+    }
   }
 
   std::string octet_str;
